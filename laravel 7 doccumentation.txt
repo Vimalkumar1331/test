@@ -1,0 +1,253 @@
+backendtheems
+============================================
+https://www.creative-tim.com/bootstrap-themes/free?page=2
+___________________________________________________________________________________________
+
+install chatty app
+=====================
+https://chatify.munafio.com/installation
+
+delete and edit  nethods for button 
+===================================
+xyz.blade.php page 
+ 					<td>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-info btn-sm usermanagementEdit"
+                                                    geturl="{{route('usermanagement.edit',$usermanagement->id)}}"
+                                                    posturl="{{route('usermanagement.update',$usermanagement->id)}}">Edit</button>
+                                                <button type="button" class="btn btn-danger btn-sm" onclick=" if(confirm('Do you want to Delete this usermanagement??'))
+                                                        {
+                                                            event.preventDefault();
+                                                            document.getElementById('delete-form-{{$usermanagement->id}}').submit();
+                                                        }
+                                                        else{
+                                                            event.preventDefault();
+                                                        }">Delete</button>
+                                                <form id="delete-form-{{$usermanagement->id}}" method="post"
+                                                    action="{{route('usermanagement.destroy',$usermanagement->id)}}">
+                                                    {{csrf_field()}}
+                                                    {{method_field('DELETE')}}
+                                                </form>
+                                            </div>
+                                        </td>
+
+
+=================
+UPDATE FUNCTION with image 
+_________________
+public function update(Request $request, City $city)
+    {
+
+        $city->name = $request->name; 
+        $city->state = $request->state;
+
+        if($request->file('image')){
+            @$file1 = $request->file('image');
+            @$name = $file1->getClientOriginalName();
+            @$extension1 = $file1->getClientOriginalExtension();
+            if($extension1=='pdf' || $extension1=='jpeg' || $extension1=='jpg' || $extension1=='png'){
+                $city_img = uniqid().$name;
+                $request->image->storeAs('/public/images', $city_img);
+                $city->image = $city_img;
+            }
+        }
+    
+        
+        $city->save();
+        return redirect()->back();
+        
+
+    }
+
+
+
+
+
+controller page
+================
+
+//for delete 
+
+
+ public function destroy($id)
+    {
+      
+       Usermanagement::find($id)->delete();
+  
+    return redirect('usermanagement');
+
+    }
+
+
+//for edit
+ 
+
+
+ public function edit(Usermanagement $usermanagement)
+    {
+
+      return json_encode( $usermanagement);
+       
+    }
+
+
+
+ public function update(Request $request, Usermanagement $usermanagement)
+    {
+        $usermanagement->user_name = $request->user_name;
+        $usermanagement->mobile = $request->mobile;
+        $usermanagement->email = $request->email;
+        $usermanagement->password = $request->password;
+        $usermanagement->role_type = $request->role_type;
+        $usermanagement->comment = $request->comment;
+
+        $usermanagement->save();
+
+
+    }
+
+
+
+
+=====================================
+MODEL
+______________________
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="citymodel" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog" city="document">
+    <div class="modal-content">
+      <div class="modal-header bg-danger">
+        <h5 class="modal-title" id="exampleModalLongTitle" style="color:white;">Add New Cities </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true" style="color:white;">X</span>
+        </button>
+      </div>
+      <form id="formID" action="{{route('city.store')}}" method="post" enctype="multipart/form-data">
+      @csrf
+
+      <input type="hidden" id="method" name="_method" value="">
+                <div class="modal-body">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                
+                                <span class="input-group-text">City Name</span>
+                            </div>
+                                <input type="text" id="name" name="name" class="form-control" aria-label="Dollar amount (with dot and two decimal places)">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                
+                                <span class="input-group-text">State</span>
+                            </div>
+                                <input type="text" id="state" name="state" class="form-control" aria-label="Dollar amount (with dot and two decimal places)">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                
+                                <span class="input-group-text">Image</span>
+                            </div>
+                                <input type="file" id="image" name="image" class="form-control" aria-label="Dollar amount (with dot and two decimal places)">
+                        </div>
+
+                       
+
+                <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-6"><button type="button" class="btn btn-danger" data-dismiss="modal">Close</button></div>
+                                    <div class="col-md-6">   <button type="submit" class="btn btn-success">Submit</button></div>
+                                </div>
+                                </div>
+                        </div>
+
+                </div>
+            </div>
+        </form>
+     
+      
+    </div>
+  </div>
+</div>
+<!-- end model  -->
+
+
+==================
+when css is not found of app.blade.php
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+
+
+
+=====================================
+
+	*****image Upload code******
+_____________________________________
+
+
+	 public function store(Request $request)
+    {
+        //.
+        // dd($request->all());
+        $this->validate($request, [
+            'name' => 'required',
+            'state' => 'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+
+        ]); 
+            $city = new City;
+        $city->name = $request->name; 
+        $city->state = $request->state;
+
+        if($request->file('image')){
+            @$file1 = $request->file('image');
+            @$name = $file1->getClientOriginalName();
+            @$extension1 = $file1->getClientOriginalExtension();
+            if($extension1=='pdf' || $extension1=='jpeg' || $extension1=='jpg' || $extension1=='png'){
+                $city_img = uniqid().$name;
+                $request->image->storeAs('/public/images', $city_img);
+                $city->image = $city_img;
+            }
+        }
+    
+        
+        $city->save();
+        return redirect()->back();
+        
+    }
+
+   
+/* after uplaoding image  
+then run a artisan command  command */
+______________________________________________________________________
+E:\server xaamp\htdocs\development\tourist> php artisan storage:link
+______________________________________________________________________
+
+
+
+=====================================================================================
+/*custome user Login Profille image Data visiti  now */
+_______________________________________________________________
+https://www.devopsschool.com/blog/how-to-upload-profile-image-of-users-in-laravel/
+
+======================================================================================
+
+
+Change App name in laravel 
+______________________________
+I Have just installed Laravel 5.8 and I want to change the application name from Laravel to 'CodeTube'. 
+I have written this in .env file APP_NAME=CudeTube but the Name didn't change.
+
+In this file config/app.php , you have to change 'name' => env('APP_NAME', 'Laravel'), into 'name' => env('APP_NAME', 'CodeTube'), – 
+Inzamam Idrees
+ May 11 '19 at 6:45
+2
+Try php artisan config:clear and restart the artisan server and test. – 
+Prafulla Kumar Sahu
+ May 11 '19 at 6:52
